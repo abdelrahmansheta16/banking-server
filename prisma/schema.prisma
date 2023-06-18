@@ -1,0 +1,28 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Transaction {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  from       User     @relation("from", fields: [senderId], references: [id])
+  senderId   String   @unique @db.ObjectId
+  to         User     @relation("to", fields: [recieverId], references: [id])
+  recieverId String   @unique @db.ObjectId
+  amount     Int
+  date       DateTime @default(now())
+  status     String   @default("completed")
+}
+
+model User {
+  id                   String        @id @default(auto()) @map("_id") @db.ObjectId
+  name                 String
+  email                String
+  currentBalance       Int           @default(0)
+  recievedTransactions Transaction[] @relation("to")
+  sentTransactions     Transaction[] @relation("from")
+}
